@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}Flight Booking Agent - Multi-Agent AI Framework{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5 fade-in">
+                <div class="feature-icon mx-auto mb-3 pulse" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); width: 100px; height: 100px;">
+                    <i class="fas fa-plane" style="font-size: 2.5rem;"></i>
+                </div>
+                <h1 class="hero-title mb-3">✈️ Autonomous Flight Booking</h1>
+                <p class="hero-subtitle">Book flights using natural language. AI handles everything - search, selection, and booking automatically!</p>
+                
+                <!-- Demo Platform Link -->
+                <div class="mt-4">
+                    <a href="{{ url_for('flight_platform_page') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-external-link-alt me-2"></i>View Demo Flight Platform
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Booking Card -->
+            <div class="card mb-4 fade-in">
+                <div class="card-header">
+                    <h4 class="mb-0 text-white"><i class="fas fa-magic me-2"></i>AI-Powered Flight Booking</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-white-50 mb-4">Just describe your travel plans in natural language and let AI handle the rest!</p>
+                    
+                    <form id="quickBookingForm">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="mb-3">
+                                    <label for="bookingRequest" class="form-label">Describe your flight booking request:</label>
+                                    <textarea class="form-control" id="bookingRequest" rows="4" 
+                                        placeholder="Examples:
+• Book a flight from Delhi to Mumbai tomorrow morning
+• I need to fly to Bangalore on March 15th for 2 people
+• Flight from Mumbai to Delhi this evening
+• Book ticket from Mathura to Delhi on 31st March"></textarea>
+                                </div>
+                                
+                                <!-- Quick Examples -->
+                                <div class="mb-3">
+                                    <label class="form-label">Quick Examples:</label>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn btn-outline-light w-100 example-btn" 
+                                                data-example="Book a flight from Delhi to Mumbai tomorrow morning">
+                                                Delhi → Mumbai (Tomorrow)
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn btn-outline-light w-100 example-btn" 
+                                                data-example="I need to fly to Bangalore on March 15th for 2 people">
+                                                Delhi → Bangalore (March 15)
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn btn-outline-light w-100 example-btn" 
+                                                data-example="Flight from Mumbai to Delhi this evening">
+                                                Mumbai → Delhi (Evening)
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn btn-outline-light w-100 example-btn" 
+                                                data-example="Book ticket from Mathura to Delhi on 31st March">
+                                                Mathura → Delhi (March 31)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <div class="d-flex flex-column h-100">
+                                    <div class="mb-3">
+                                        <label for="passengerName" class="form-label">Passenger Name:</label>
+                                        <input type="text" class="form-control" id="passengerName" value="AI User" placeholder="Enter passenger name">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Book Your Flight:</label>
+                                        <button type="submit" class="btn btn-primary w-100 btn-lg" id="bookBtn">
+                                            <i class="fas fa-plane me-2"></i>Book Flight
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Flight Stats -->
+                                    <div class="card mt-auto">
+                                        <div class="card-body text-center">
+                                            <h6 class="text-white mb-2">AI Features</h6>
+                                            <div class="row g-2 text-center">
+                                                <div class="col-6">
+                                                    <small class="text-success">✓ Smart Parsing</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-success">✓ Auto Selection</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-success">✓ Instant Booking</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-success">✓ Any Route</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabs for different sections -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="flightTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="search-tab" data-bs-toggle="tab" data-bs-target="#search" type="button" role="tab">
+                                <i class="fas fa-search me-2"></i>Manual Search
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                                <i class="fas fa-history me-2"></i>Booking History
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="platform-tab" data-bs-toggle="tab" data-bs-target="#platform" type="button" role="tab">
+                                <i class="fas fa-external-link-alt me-2"></i>Demo Platform
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="flightTabContent">
+                        <!-- Manual Search Tab -->
+                        <div class="tab-pane fade show active" id="search" role="tabpanel">
+                            <h5 class="text-white mb-3">Manual Flight Search</h5>
+                            <form id="searchForm">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="fromCity" class="form-label">From:</label>
+                                            <select class="form-select" id="fromCity">
+                                                <option value="Delhi">Delhi</option>
+                                                <option value="Mumbai">Mumbai</option>
+                                                <option value="Bangalore">Bangalore</option>
+                                                <option value="Chennai">Chennai</option>
+                                                <option value="Mathura">Mathura</option>
+                                                <option value="Agra">Agra</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="toCity" class="form-label">To:</label>
+                                            <select class="form-select" id="toCity">
+                                                <option value="Mumbai">Mumbai</option>
+                                                <option value="Delhi">Delhi</option>
+                                                <option value="Bangalore">Bangalore</option>
+                                                <option value="Chennai">Chennai</option>
+                                                <option value="Mathura">Mathura</option>
+                                                <option value="Agra">Agra</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="travelDate" class="form-label">Date:</label>
+                                            <input type="date" class="form-control" id="travelDate">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="passengers" class="form-label">Passengers:</label>
+                                            <select class="form-select" id="passengers">
+                                                <option value="1">1 Passenger</option>
+                                                <option value="2">2 Passengers</option>
+                                                <option value="3">3 Passengers</option>
+                                                <option value="4">4 Passengers</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search me-2"></i>Search Flights
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- History Tab -->
+                        <div class="tab-pane fade" id="history" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="text-white mb-0">Your Flight Bookings</h5>
+                                <button class="btn btn-outline-light btn-sm" id="refreshHistory">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
+                            </div>
+                            <div id="bookingHistory">
+                                <div class="text-center text-white-50 py-4">
+                                    <div class="loading-spinner mb-2"></div>
+                                    <p>Loading booking history...</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Platform Tab -->
+                        <div class="tab-pane fade" id="platform" role="tabpanel">
+                            <div class="text-center py-4">
+                                <i class="fas fa-external-link-alt fa-3x text-info mb-3"></i>
+                                <h5 class="text-white">Demo Flight Platform</h5>
+                                <p class="text-white-50 mb-4">View all bookings and flight data in our simulated airline platform</p>
+                                <a href="{{ url_for('flight_platform_page') }}" class="btn btn-info btn-lg" target="_blank">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open Flight Platform
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Area -->
+            <div id="resultsArea" class="mt-4"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('travelDate').value = tomorrow.toISOString().split('T')[0];
+    
+    // Load booking history on page load
+    loadBookingHistory();
+    
+    // Quick booking form
+    document.getElementById('quickBookingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const bookingRequest = document.getElementById('bookingRequest').value.trim();
+        const passengerName = document.getElementById('passengerName').value.trim();
+        
+        if (!bookingRequest) {
+            showAlert('Please describe your flight booking request', 'warning');
+            return;
+        }
+        
+        if (!passengerName) {
+            showAlert('Please enter passenger name', 'warning');
+            return;
+        }
+        
+        bookFlight(bookingRequest, passengerName);
+    });
+    
+    // Manual search form
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const fromCity = document.getElementById('fromCity').value;
+        const toCity = document.getElementById('toCity').value;
+        const travelDate = document.getElementById('travelDate').value;
+        const passengers = document.getElementById('passengers').value;
+        
+        if (fromCity === toCity) {
+            showAlert('Source and destination cities cannot be the same', 'warning');
+            return;
+        }
+        
+        if (!travelDate) {
+            showAlert('Please select travel date', 'warning');
+            return;
+        }
+        
+        searchFlights(fromCity, toCity, travelDate, passengers);
+    });
+    
+    // Refresh history button
+    document.getElementById('refreshHistory').addEventListener('click', function() {
+        loadBookingHistory();
+    });
+});
+
+function bookFlight(request, passengerName) {
+    const bookBtn = document.getElementById('bookBtn');
+    const originalText = bookBtn.innerHTML;
+    
+    bookBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Booking...';
+    bookBtn.disabled = true;
+    
+    fetch('/api/flight/book', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            user_request: request,
+            passenger_name: passengerName
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showResult(data.result, 'success');
+            document.getElementById('bookingRequest').value = '';
+            loadBookingHistory(); // Refresh history
+        } else {
+            showAlert('Booking failed: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Network error occurred', 'danger');
+    })
+    .finally(() => {
+        bookBtn.innerHTML = originalText;
+        bookBtn.disabled = false;
+    });
+}
+
+function searchFlights(fromCity, toCity, travelDate, passengers) {
+    showResult('<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Searching flights...</div>', 'info');
+    
+    fetch('/api/flight/search', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            from_city: fromCity,
+            to_city: toCity,
+            travel_date: travelDate,
+            passengers: parseInt(passengers)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showResult(data.result, 'info');
+        } else {
+            showAlert('Search failed: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Network error occurred', 'danger');
+    });
+}
+
+function loadBookingHistory() {
+    const historyDiv = document.getElementById('bookingHistory');
+    historyDiv.innerHTML = '<div class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading booking history...</div>';
+    
+    fetch('/api/flight/history')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.result.includes('No flight bookings found')) {
+                historyDiv.innerHTML = '<div class="text-center text-muted"><i class="fas fa-info-circle me-2"></i>No bookings found. Make your first booking above!</div>';
+            } else {
+                historyDiv.innerHTML = '<pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">' + data.result + '</pre>';
+            }
+        } else {
+            historyDiv.innerHTML = '<div class="text-center text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load history</div>';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        historyDiv.innerHTML = '<div class="text-center text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Network error</div>';
+    });
+}
+
+function showResult(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                     type === 'danger' ? 'alert-danger' : 
+                     type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const resultsArea = document.getElementById('resultsArea');
+    resultsArea.innerHTML = `
+        <div class="card">
+            <div class="card-body">
+                <div class="alert ${alertClass} mb-0">
+                    <pre style="white-space: pre-wrap; margin: 0; font-family: inherit;">${message}</pre>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Scroll to results
+    resultsArea.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showAlert(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                     type === 'danger' ? 'alert-danger' : 
+                     type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert at top of container
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto dismiss after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

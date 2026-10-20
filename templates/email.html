@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Email Agent - Multi-Agent AI Framework{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5 fade-in">
+                <div class="feature-icon mx-auto mb-3 pulse" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); width: 100px; height: 100px;">
+                    <i class="fas fa-envelope" style="font-size: 2.5rem;"></i>
+                </div>
+                <h1 class="hero-title mb-3">📧 Email Agent</h1>
+                <p class="hero-subtitle">Generate and send professional emails with AI-powered content creation</p>
+            </div>
+            
+            <!-- Main Card -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h4 class="mb-0 text-white"><i class="fas fa-envelope me-2 text-primary"></i>AI-Powered Email Generation</h4>
+                </div>
+                <div class="card-body">
+                    <form id="emailForm">
+                        <!-- Recipient -->
+                        <div class="mb-4">
+                            <label for="recipient" class="form-label">
+                                <i class="fas fa-at me-2 text-primary"></i>Recipient Email Address
+                            </label>
+                            <input type="email" class="form-control" id="recipient" 
+                                   placeholder="example@gmail.com (leave empty for default)" 
+                                   value="">
+                            <div class="form-text text-white-50">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Enter the recipient's email address. Leave empty to use default recipient.
+                            </div>
+                        </div>
+                        
+                        <!-- Email Context -->
+                        <div class="mb-4">
+                            <label for="emailContext" class="form-label">
+                                <i class="fas fa-edit me-2 text-primary"></i>What do you want to communicate?
+                            </label>
+                            <textarea class="form-control" id="emailContext" rows="4" 
+                                      placeholder="Describe the purpose of your email... For example:
+• Email boss about project completion and next steps
+• Send meeting invitation for tomorrow's client presentation
+• Follow up on job application submitted last week
+• Request time off for vacation next month"></textarea>
+                            <div class="form-text text-white-50">
+                                <i class="fas fa-magic me-1"></i>
+                                AI will generate a professional email with proper subject line and formatting.
+                            </div>
+                        </div>
+                        
+                        <!-- Preview Button -->
+                        <div class="mb-4">
+                            <button type="button" class="btn btn-outline-primary" id="previewBtn">
+                                <i class="fas fa-eye me-2"></i>Preview AI Generated Email
+                            </button>
+                        </div>
+                        
+                        <!-- Email Preview -->
+                        <div id="emailPreview" class="card mb-4" style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); display: none;">
+                            <div class="card-body">
+                                <h6 class="text-primary mb-3"><i class="fas fa-robot me-2"></i>AI Generated Email:</h6>
+                                <div id="emailPreviewContent" class="text-white"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Send Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="sendBtn">
+                                <i class="fas fa-paper-plane me-2"></i>Send Email
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Examples Card -->
+            <div class="card mt-4 fade-in">
+                <div class="card-header">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>Example Email Contexts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; cursor: pointer; transition: all 0.3s ease;">
+                                <strong class="text-primary">Project Update:</strong><br>
+                                <small class="text-white-50">"Email boss about project completion and next steps"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; cursor: pointer; transition: all 0.3s ease;">
+                                <strong class="text-primary">Meeting Request:</strong><br>
+                                <small class="text-white-50">"Send meeting invitation for tomorrow's client presentation"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; cursor: pointer; transition: all 0.3s ease;">
+                                <strong class="text-primary">Follow Up:</strong><br>
+                                <small class="text-white-50">"Follow up on job application submitted last week"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; cursor: pointer; transition: all 0.3s ease;">
+                                <strong class="text-primary">Time Off Request:</strong><br>
+                                <small class="text-white-50">"Request time off for vacation next month"</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Back Button -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Area -->
+<div id="resultsArea" class="container mt-4"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('emailForm');
+    const previewBtn = document.getElementById('previewBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const emailPreview = document.getElementById('emailPreview');
+    const emailPreviewContent = document.getElementById('emailPreviewContent');
+    const emailContext = document.getElementById('emailContext');
+    
+    // Preview email
+    previewBtn.addEventListener('click', async function() {
+        const context = emailContext.value.trim();
+        
+        if (!context) {
+            showResult('Please enter an email context first.', 'warning');
+            return;
+        }
+        
+        // Show loading
+        const originalText = previewBtn.innerHTML;
+        previewBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+        previewBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: context,
+                    type: 'email'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const email = data.generated;
+                emailPreviewContent.innerHTML = `
+                    <div class="mb-3">
+                        <strong><i class="fas fa-tag me-2 text-primary"></i>Subject:</strong><br>
+                        <span class="text-primary">${email.subject}</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-envelope-open me-2 text-primary"></i>Body:</strong><br>
+                        <div style="white-space: pre-line; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #6366f1;">
+${email.body}
+                        </div>
+                    </div>
+                `;
+                emailPreview.style.display = 'block';
+            } else {
+                showResult(`Preview failed: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            showResult(`Preview error: ${error.message}`, 'danger');
+        } finally {
+            previewBtn.innerHTML = originalText;
+            previewBtn.disabled = false;
+        }
+    });
+    
+    // Send email
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const recipient = document.getElementById('recipient').value.trim();
+        const context = emailContext.value.trim();
+        
+        if (!context) {
+            showResult('Please enter an email context.', 'warning');
+            return;
+        }
+        
+        // Show loading
+        const originalText = sendBtn.innerHTML;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        sendBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    to: recipient,
+                    message: context
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showResult(`
+                    <strong>✅ Email sent successfully!</strong><br>
+                    <strong>To:</strong> ${data.to}<br>
+                    <strong>Result:</strong> ${data.result}
+                `, 'success');
+                
+                // Clear form
+                form.reset();
+                emailPreview.style.display = 'none';
+            } else {
+                showResult(`❌ Failed to send email: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            showResult(`❌ Network error: ${error.message}`, 'danger');
+        } finally {
+            sendBtn.innerHTML = originalText;
+            sendBtn.disabled = false;
+        }
+    });
+    
+    // Example click handlers
+    document.querySelectorAll('.example-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const exampleText = this.querySelector('small').textContent.replace(/"/g, '');
+            emailContext.value = exampleText;
+            emailContext.focus();
+            
+            // Add click effect
+            this.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+        
+        // Add hover effects
+        item.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(99, 102, 241, 0.2)';
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(99, 102, 241, 0.1)';
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+
+function showResult(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                     type === 'danger' ? 'alert-danger' : 
+                     type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const resultsArea = document.getElementById('resultsArea');
+    resultsArea.innerHTML = `
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="alert ${alertClass} mb-0">
+                            ${message}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Scroll to results
+    resultsArea.scrollIntoView({ behavior: 'smooth' });
+    
+    // Auto hide success messages
+    if (type === 'success') {
+        setTimeout(() => {
+            resultsArea.innerHTML = '';
+        }, 10000);
+    }
+}
+</script>
+{% endblock %}

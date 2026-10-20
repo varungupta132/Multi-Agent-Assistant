@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Intelligence Platform - AI Assessment System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-ai {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-ai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .result-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            color: #667eea;
+        }
+        
+        .nav-pills .nav-link {
+            border-radius: 25px;
+            margin: 0 5px;
+            font-weight: 600;
+        }
+        
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .alert-ai {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header-section">
+                <h1><i class="fas fa-brain"></i> MCQ Intelligence Platform</h1>
+                <p class="lead mb-0">Autonomous AI-Powered Assessment & Question Generation System</p>
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h4 id="totalQuestions">0</h4>
+                            <small>Total Questions</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h4 id="totalExams">0</h4>
+                            <small>Exam Sessions</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h4 id="avgScore">0%</h4>
+                            <small>Average Score</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h4 id="platformScans">0</h4>
+                            <small>Platform Scans</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="p-4">
+                <ul class="nav nav-pills justify-content-center mb-4" id="mcqTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="pill" href="#generate">
+                            <i class="fas fa-magic"></i> Generate Questions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#exam">
+                            <i class="fas fa-graduation-cap"></i> Create Exam
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#analyze">
+                            <i class="fas fa-search"></i> Analyze Questions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#scan">
+                            <i class="fas fa-robot"></i> Platform Scanner
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#takeExam">
+                            <i class="fas fa-play"></i> Take Exam
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Generate Questions Tab -->
+                    <div class="tab-pane fade show active" id="generate">
+                        <div class="feature-card">
+                            <div class="text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-magic"></i>
+                                </div>
+                                <h3>AI Question Generator</h3>
+                                <p class="text-muted">Generate high-quality MCQ questions on any topic using advanced AI</p>
+                            </div>
+                            
+                            <form id="generateForm">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Topic</label>
+                                        <input type="text" class="form-control" id="generateTopic" 
+                                               placeholder="e.g., Python Programming, Machine Learning" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Difficulty</label>
+                                        <select class="form-select" id="generateDifficulty">
+                                            <option value="easy">Easy</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="hard">Hard</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Number of Questions</label>
+                                        <select class="form-select" id="generateCount">
+                                            <option value="3">3 Questions</option>
+                                            <option value="5" selected>5 Questions</option>
+                                            <option value="10">10 Questions</option>
+                                            <option value="15">15 Questions</option>
+                                            <option value="20">20 Questions</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-ai btn-lg">
+                                        <i class="fas fa-magic"></i> Generate AI Questions
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="loading" id="generateLoading">
+                                <div class="spinner-border" role="status"></div>
+                                <p class="mt-2">AI is generating intelligent questions...</p>
+                            </div>
+                            
+                            <div class="result-area" id="generateResult" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Create Exam Tab -->
+                    <div class="tab-pane fade" id="exam">
+                        <div class="feature-card">
+                            <div class="text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <h3>Intelligent Exam Creator</h3>
+                                <p class="text-muted">Create personalized exam sessions with AI-curated questions</p>
+                            </div>
+                            
+                            <form id="examForm">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Exam Topic</label>
+                                        <input type="text" class="form-control" id="examTopic" 
+                                               placeholder="e.g., Data Structures" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Difficulty Level</label>
+                                        <select class="form-select" id="examDifficulty">
+                                            <option value="easy">Easy</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="hard">Hard</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Questions Count</label>
+                                        <select class="form-select" id="examQuestions">
+                                            <option value="5">5 Questions</option>
+                                            <option value="10" selected>10 Questions</option>
+                                            <option value="15">15 Questions</option>
+                                            <option value="20">20 Questions</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Your Name</label>
+                                        <input type="text" class="form-control" id="examUserName" 
+                                               placeholder="Enter your name" value="Anonymous">
+                                    </div>
+                                </div>
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-ai btn-lg">
+                                        <i class="fas fa-graduation-cap"></i> Create Intelligent Exam
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="loading" id="examLoading">
+                                <div class="spinner-border" role="status"></div>
+                                <p class="mt-2">Creating your personalized exam session...</p>
+                            </div>
+                            
+                            <div class="result-area" id="examResult" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Analyze Questions Tab -->
+                    <div class="tab-pane fade" id="analyze">
+                        <div class="feature-card">
+                            <div class="text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <h3>AI Question Analyzer</h3>
+                                <p class="text-muted">Get detailed AI analysis and solutions for any MCQ question</p>
+                            </div>
+                            
+                            <form id="analyzeForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Question ID to Analyze</label>
+                                        <input type="number" class="form-control" id="analyzeQuestionId" 
+                                               placeholder="Enter question ID (e.g., 1, 2, 3...)" min="1" required>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-ai">
+                                            <i class="fas fa-search"></i> Analyze with AI
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <div class="loading" id="analyzeLoading">
+                                <div class="spinner-border" role="status"></div>
+                                <p class="mt-2">AI is analyzing the question...</p>
+                            </div>
+                            
+                            <div class="result-area" id="analyzeResult" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Platform Scanner Tab -->
+                    <div class="tab-pane fade" id="scan">
+                        <div class="feature-card">
+                            <div class="text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <h3>Autonomous Platform Scanner</h3>
+                                <p class="text-muted">AI agent scans external MCQ platforms and imports questions</p>
+                            </div>
+                            
+                            <div class="alert alert-ai">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Demo Mode:</strong> This simulates scanning external platforms like CodeChef, HackerRank, etc.
+                            </div>
+                            
+                            <form id="scanForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Platform Name</label>
+                                        <select class="form-select" id="scanPlatform">
+                                            <option value="CodeChef">CodeChef</option>
+                                            <option value="HackerRank">HackerRank</option>
+                                            <option value="LeetCode">LeetCode</option>
+                                            <option value="GeeksforGeeks">GeeksforGeeks</option>
+                                            <option value="Codeforces">Codeforces</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Topic to Search</label>
+                                        <input type="text" class="form-control" id="scanTopic" 
+                                               placeholder="e.g., Algorithms, Data Structures" required>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-ai btn-lg">
+                                        <i class="fas fa-robot"></i> Start Autonomous Scan
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="loading" id="scanLoading">
+                                <div class="spinner-border" role="status"></div>
+                                <p class="mt-2">AI agent is scanning the platform...</p>
+                            </div>
+                            
+                            <div class="result-area" id="scanResult" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Take Exam Tab -->
+                    <div class="tab-pane fade" id="takeExam">
+                        <div class="feature-card">
+                            <div class="text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <h3>Take Intelligent Assessment</h3>
+                                <p class="text-muted">Start an exam session with AI-powered questions</p>
+                            </div>
+                            
+                            <form id="startExamForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Session ID</label>
+                                        <input type="text" class="form-control" id="sessionId" 
+                                               placeholder="Enter exam session ID" required>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-ai">
+                                            <i class="fas fa-play"></i> Start Exam
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <div class="alert alert-ai mt-3">
+                                <i class="fas fa-lightbulb"></i>
+                                <strong>How to use:</strong> First create an exam session in the "Create Exam" tab, then use the generated Session ID here to start taking the exam.
+                            </div>
+                            
+                            <div id="examInterface" style="display: none;">
+                                <!-- Exam interface will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Load statistics on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStatistics();
+        });
+
+        // Load platform statistics
+        function loadStatistics() {
+            fetch('/api/mcq/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Parse statistics from the result text
+                        const stats = data.stats;
+                        document.getElementById('totalQuestions').textContent = stats.total_questions || '0';
+                        document.getElementById('totalExams').textContent = stats.total_sessions || '0';
+                        document.getElementById('avgScore').textContent = (stats.avg_score || 0).toFixed(1) + '%';
+                        document.getElementById('platformScans').textContent = stats.total_scans || '0';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading statistics:', error);
+                });
+        }
+
+        // Generate Questions Form
+        document.getElementById('generateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const topic = document.getElementById('generateTopic').value;
+            const difficulty = document.getElementById('generateDifficulty').value;
+            const count = parseInt(document.getElementById('generateCount').value);
+            
+            // Show loading
+            document.getElementById('generateLoading').style.display = 'block';
+            document.getElementById('generateResult').style.display = 'none';
+            
+            fetch('/api/mcq/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    topic: topic,
+                    difficulty: difficulty,
+                    count: count
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('generateLoading').style.display = 'none';
+                document.getElementById('generateResult').style.display = 'block';
+                
+                if (data.success) {
+                    document.getElementById('generateResult').innerHTML = 
+                        '<div class="alert alert-success"><i class="fas fa-check-circle"></i> ' + 
+                        data.result.replace(/\n/g, '<br>') + '</div>';
+                    loadStatistics(); // Refresh stats
+                } else {
+                    document.getElementById('generateResult').innerHTML = 
+                        '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ' + 
+                        data.error + '</div>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('generateLoading').style.display = 'none';
+                document.getElementById('generateResult').style.display = 'block';
+                document.getElementById('generateResult').innerHTML = 
+                    '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error: ' + 
+                    error.message + '</div>';
+            });
+        });
+
+        // Create Exam Form
+        document.getElementById('examForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const topic = document.getElementById('examTopic').value;
+            const difficulty = document.getElementById('examDifficulty').value;
+            const numQuestions = parseInt(document.getElementById('examQuestions').value);
+            const userName = document.getElementById('examUserName').value;
+            
+            // Show loading
+            document.getElementById('examLoading').style.display = 'block';
+            document.getElementById('examResult').style.display = 'none';
+            
+            fetch('/api/mcq/exam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    topic: topic,
+                    difficulty: difficulty,
+                    num_questions: numQuestions,
+                    user_name: userName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('examLoading').style.display = 'none';
+                document.getElementById('examResult').style.display = 'block';
+                
+                if (data.success) {
+                    document.getElementById('examResult').innerHTML = 
+                        '<div class="alert alert-success"><i class="fas fa-check-circle"></i> ' + 
+                        data.result.replace(/\n/g, '<br>') + '</div>';
+                    loadStatistics(); // Refresh stats
+                } else {
+                    document.getElementById('examResult').innerHTML = 
+                        '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ' + 
+                        data.error + '</div>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('examLoading').style.display = 'none';
+                document.getElementById('examResult').style.display = 'block';
+                document.getElementById('examResult').innerHTML = 
+                    '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error: ' + 
+                    error.message + '</div>';
+            });
+        });
+
+        // Analyze Question Form
+        document.getElementById('analyzeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const questionId = parseInt(document.getElementById('analyzeQuestionId').value);
+            
+            // Show loading
+            document.getElementById('analyzeLoading').style.display = 'block';
+            document.getElementById('analyzeResult').style.display = 'none';
+            
+            fetch('/api/mcq/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question_id: questionId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('analyzeLoading').style.display = 'none';
+                document.getElementById('analyzeResult').style.display = 'block';
+                
+                if (data.success) {
+                    document.getElementById('analyzeResult').innerHTML = 
+                        '<div class="alert alert-info"><i class="fas fa-brain"></i> ' + 
+                        data.result.replace(/\n/g, '<br>') + '</div>';
+                } else {
+                    document.getElementById('analyzeResult').innerHTML = 
+                        '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ' + 
+                        data.error + '</div>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('analyzeLoading').style.display = 'none';
+                document.getElementById('analyzeResult').style.display = 'block';
+                document.getElementById('analyzeResult').innerHTML = 
+                    '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error: ' + 
+                    error.message + '</div>';
+            });
+        });
+
+        // Platform Scanner Form
+        document.getElementById('scanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const platform = document.getElementById('scanPlatform').value;
+            const topic = document.getElementById('scanTopic').value;
+            
+            // Show loading
+            document.getElementById('scanLoading').style.display = 'block';
+            document.getElementById('scanResult').style.display = 'none';
+            
+            fetch('/api/mcq/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    platform_name: platform,
+                    topic: topic
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('scanLoading').style.display = 'none';
+                document.getElementById('scanResult').style.display = 'block';
+                
+                if (data.success) {
+                    document.getElementById('scanResult').innerHTML = 
+                        '<div class="alert alert-success"><i class="fas fa-robot"></i> ' + 
+                        data.result.replace(/\n/g, '<br>') + '</div>';
+                    loadStatistics(); // Refresh stats
+                } else {
+                    document.getElementById('scanResult').innerHTML = 
+                        '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ' + 
+                        data.error + '</div>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('scanLoading').style.display = 'none';
+                document.getElementById('scanResult').style.display = 'block';
+                document.getElementById('scanResult').innerHTML = 
+                    '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error: ' + 
+                    error.message + '</div>';
+            });
+        });
+
+        // Start Exam Form (placeholder for now)
+        document.getElementById('startExamForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const sessionId = document.getElementById('sessionId').value;
+            
+            // For now, just show a message
+            document.getElementById('examInterface').style.display = 'block';
+            document.getElementById('examInterface').innerHTML = 
+                '<div class="alert alert-info"><i class="fas fa-info-circle"></i> ' +
+                'Exam interface for session <strong>' + sessionId + '</strong> would load here. ' +
+                'This is a demo of the MCQ Intelligence Platform capabilities.</div>';
+        });
+    </script>
+</body>
+</html>

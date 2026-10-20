@@ -1,0 +1,661 @@
+{% extends "base.html" %}
+
+{% block title %}Task Manager - Multi-Agent AI Framework{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <div class="feature-icon task-icon mx-auto pulse">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h1 class="display-4 fw-bold text-white mb-3">📋 Task Manager</h1>
+                <p class="lead text-white-50">AI-powered task management with live time tracking and smart alerts</p>
+            </div>
+            
+            <!-- Create Task Card -->
+            <div class="card fade-in mb-4">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-4">
+                        <i class="fas fa-magic me-2 text-primary"></i>Smart Task Creation
+                    </h3>
+                    
+                    <!-- Smart Input Mode -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="smartMode" checked>
+                            <label class="form-check-label fw-semibold" for="smartMode">
+                                <i class="fas fa-robot me-2 text-success"></i>AI Smart Mode (Recommended)
+                            </label>
+                        </div>
+                        <small class="text-muted">AI will parse your natural language and create enhanced tasks</small>
+                    </div>
+                    
+                    <!-- Smart Input Form -->
+                    <div id="smartForm">
+                        <div class="mb-4">
+                            <label for="smartInput" class="form-label fw-semibold">
+                                <i class="fas fa-comment-dots me-2 text-primary"></i>Tell me what you want to do
+                            </label>
+                            <textarea class="form-control" id="smartInput" rows="3" 
+                                      placeholder="Examples:
+• Add ML assignment for 2 hours
+• Study for exam for 3 hours  
+• Complete report by 6 PM
+• Finish work in 1 minute ⚡
+• Quick task for 2 minutes ⚡
+• Debug code for 5 minutes ⚡
+• Review slides for 30 minutes"></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb me-1 text-warning"></i>
+                                Just describe your task naturally - AI will understand the time and create detailed task info!
+                                <br><i class="fas fa-bolt me-1 text-success"></i>
+                                <strong>Short tasks (1-10 minutes) are perfectly supported!</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="endTime" class="form-label fw-semibold">
+                                    <i class="fas fa-clock me-2 text-warning"></i>End Time (Optional)
+                                </label>
+                                <input type="time" class="form-control" id="endTime">
+                                <div class="form-text">
+                                    Leave empty to use AI-detected duration, or set specific end time
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-play-circle me-2 text-success"></i>Start Time
+                                </label>
+                                <input type="text" class="form-control" id="currentTime" readonly>
+                                <div class="form-text">
+                                    Live clock - task starts now
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary btn-lg" id="createSmartTask">
+                            <i class="fas fa-magic me-2"></i>Create Smart Task
+                            <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Manual Form (Hidden by default) -->
+                    <div id="manualForm" style="display: none;">
+                        <form id="taskForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="taskName" class="form-label fw-semibold">
+                                        <i class="fas fa-tag me-2 text-primary"></i>Task Name
+                                    </label>
+                                    <input type="text" class="form-control" id="taskName" 
+                                           placeholder="e.g., Complete ML Assignment" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="deadline" class="form-label fw-semibold">
+                                        <i class="fas fa-calendar me-2 text-warning"></i>Deadline (Optional)
+                                    </label>
+                                    <input type="datetime-local" class="form-control" id="deadline">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="taskDescription" class="form-label fw-semibold">
+                                    <i class="fas fa-align-left me-2 text-info"></i>Task Description
+                                </label>
+                                <textarea class="form-control" id="taskDescription" rows="3" 
+                                          placeholder="Describe the task in detail..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Create Manual Task
+                                <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Live Tasks Dashboard -->
+            <div class="card fade-in">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="card-title fw-bold mb-0">
+                            <i class="fas fa-chart-line me-2 text-success"></i>Live Task Dashboard
+                        </h3>
+                        <div>
+                            <button class="btn btn-outline-success me-2" id="refreshBtn">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh
+                            </button>
+                            <button class="btn btn-outline-warning me-2" id="testAlertBtn">
+                                <i class="fas fa-bell me-2"></i>Test Alert
+                            </button>
+                            <button class="btn btn-outline-info me-2" id="checkAlertsBtn">
+                                <i class="fas fa-search me-2"></i>Check Alerts
+                            </button>
+                            <span class="badge bg-success" id="liveIndicator">
+                                <i class="fas fa-circle pulse-dot me-1"></i>Live Updates
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Tasks Table -->
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-hashtag me-2"></i>ID</th>
+                                    <th><i class="fas fa-tasks me-2"></i>Task Name</th>
+                                    <th><i class="fas fa-clock me-2"></i>Started</th>
+                                    <th><i class="fas fa-flag-checkered me-2"></i>Est. End</th>
+                                    <th><i class="fas fa-hourglass-half me-2"></i>Time Left</th>
+                                    <th><i class="fas fa-chart-pie me-2"></i>Progress</th>
+                                    <th><i class="fas fa-traffic-light me-2"></i>Status</th>
+                                    <th><i class="fas fa-cog me-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tasksTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading tasks...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- No Tasks Message -->
+                    <div id="noTasksMessage" class="text-center py-5" style="display: none;">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Active Tasks</h4>
+                        <p class="text-muted">Create your first task above to start tracking!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Info -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary bg-opacity-10 border-primary">
+                        <div class="card-body text-center">
+                            <i class="fas fa-robot fa-2x text-primary mb-3"></i>
+                            <h5 class="text-primary">AI Time Estimation</h5>
+                            <p class="small">Smart analysis of task complexity and duration</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success bg-opacity-10 border-success">
+                        <div class="card-body text-center">
+                            <i class="fas fa-bell fa-2x text-success mb-3"></i>
+                            <h5 class="text-success">Smart Alerts</h5>
+                            <p class="small">WhatsApp notifications when time is running out</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning bg-opacity-10 border-warning">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-2x text-warning mb-3"></i>
+                            <h5 class="text-warning">Live Tracking</h5>
+                            <p class="small">Real-time progress monitoring and status updates</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Back Button -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Result Alert -->
+<div id="resultAlert" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .task-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin-bottom: 20px;
+    }
+    
+    .pulse-dot {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    .progress-bar-animated {
+        animation: progress-bar-stripes 1s linear infinite;
+    }
+    
+    .status-on-track { color: #28a745 !important; }
+    .status-at-risk { color: #ffc107 !important; }
+    .status-exceeded { color: #dc3545 !important; }
+    
+    .table-dark th {
+        border-color: #495057;
+        background-color: #343a40;
+    }
+    
+    .table-dark td {
+        border-color: #495057;
+    }
+    
+    .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const taskForm = document.getElementById('taskForm');
+    const smartModeToggle = document.getElementById('smartMode');
+    const smartForm = document.getElementById('smartForm');
+    const manualForm = document.getElementById('manualForm');
+    const createSmartTaskBtn = document.getElementById('createSmartTask');
+    const smartInput = document.getElementById('smartInput');
+    const endTimeInput = document.getElementById('endTime');
+    const currentTimeInput = document.getElementById('currentTime');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const tasksTableBody = document.getElementById('tasksTableBody');
+    const noTasksMessage = document.getElementById('noTasksMessage');
+    const liveIndicator = document.getElementById('liveIndicator');
+    
+    let refreshInterval;
+    
+    // Update current time every second
+    function updateCurrentTime() {
+        const now = new Date();
+        currentTimeInput.value = now.toLocaleTimeString('en-US', { 
+            hour12: true, 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    }
+    
+    // Smart mode toggle
+    smartModeToggle.addEventListener('change', function() {
+        if (this.checked) {
+            smartForm.style.display = 'block';
+            manualForm.style.display = 'none';
+        } else {
+            smartForm.style.display = 'none';
+            manualForm.style.display = 'block';
+        }
+    });
+    
+    // Create smart task
+    createSmartTaskBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const userInput = smartInput.value.trim();
+        const endTime = endTimeInput.value;
+        
+        if (!userInput) {
+            showAlert('Please describe what you want to do.', 'danger');
+            return;
+        }
+        
+        console.log('🧠 Creating smart task:', { userInput, endTime });
+        
+        // Show loading
+        const loading = createSmartTaskBtn.querySelector('.loading');
+        loading.classList.add('show');
+        createSmartTaskBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    operation: 'create_smart',
+                    user_input: userInput,
+                    end_time: endTime
+                })
+            });
+            
+            const data = await response.json();
+            console.log('🤖 Smart task response:', data);
+            
+            if (data.success) {
+                showAlert('✅ Smart task created with AI enhancement!', 'success');
+                smartInput.value = '';
+                endTimeInput.value = '';
+                
+                // Wait a moment then refresh the table
+                setTimeout(() => {
+                    loadLiveTasks();
+                }, 1000);
+            } else {
+                showAlert(`❌ Failed to create smart task: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            console.error('❌ Network error:', error);
+            showAlert(`❌ Network error: ${error.message}`, 'danger');
+        } finally {
+            loading.classList.remove('show');
+            createSmartTaskBtn.disabled = false;
+        }
+    });
+    
+    // Create task
+    taskForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const taskName = document.getElementById('taskName').value.trim();
+        const taskDescription = document.getElementById('taskDescription').value.trim();
+        const deadline = document.getElementById('deadline').value;
+        
+        if (!taskName) {
+            showAlert('Please enter a task name.', 'danger');
+            return;
+        }
+        
+        console.log('📝 Creating task:', { taskName, taskDescription, deadline });
+        
+        // Show loading
+        const submitBtn = taskForm.querySelector('button[type="submit"]');
+        const loading = submitBtn.querySelector('.loading');
+        loading.classList.add('show');
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    operation: 'create',
+                    task_name: taskName,
+                    task_description: taskDescription,
+                    deadline: deadline
+                })
+            });
+            
+            const data = await response.json();
+            console.log('📋 Task creation response:', data);
+            
+            if (data.success) {
+                showAlert('✅ Task created successfully with AI estimation!', 'success');
+                taskForm.reset();
+                
+                // Wait a moment then refresh the table
+                setTimeout(() => {
+                    loadLiveTasks();
+                }, 1000);
+            } else {
+                showAlert(`❌ Failed to create task: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            console.error('❌ Network error:', error);
+            showAlert(`❌ Network error: ${error.message}`, 'danger');
+        } finally {
+            loading.classList.remove('show');
+            submitBtn.disabled = false;
+        }
+    });
+    
+    // Load live tasks
+    async function loadLiveTasks() {
+        try {
+            console.log('🔄 Loading live tasks...');
+            const response = await fetch('/api/task/live');
+            const data = await response.json();
+            
+            console.log('📊 Live tasks response:', data);
+            
+            if (data.success) {
+                displayTasks(data.tasks);
+                updateLiveIndicator(true);
+                console.log(`✅ Loaded ${data.tasks.length} tasks`);
+            } else {
+                console.error('❌ Failed to load tasks:', data.error);
+                showAlert(`Failed to load tasks: ${data.error}`, 'warning');
+                updateLiveIndicator(false);
+            }
+        } catch (error) {
+            console.error('❌ Network error:', error);
+            showAlert(`Network error: ${error.message}`, 'danger');
+            updateLiveIndicator(false);
+        }
+    }
+    
+    // Display tasks in table
+    function displayTasks(tasks) {
+        console.log('📋 Displaying tasks:', tasks);
+        
+        if (!tasks || tasks.length === 0) {
+            console.log('📋 No tasks to display');
+            tasksTableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><i class="fas fa-info-circle me-2"></i>No active tasks found</td></tr>';
+            noTasksMessage.style.display = 'block';
+            return;
+        }
+        
+        console.log(`📋 Displaying ${tasks.length} tasks`);
+        noTasksMessage.style.display = 'none';
+        
+        tasksTableBody.innerHTML = tasks.map(task => {
+            console.log('📝 Processing task:', task);
+            return `
+            <tr>
+                <td><span class="badge bg-secondary">${task.id}</span></td>
+                <td>
+                    <strong>${task.name}</strong>
+                    ${task.description ? `<br><small class="text-muted">${task.description}</small>` : ''}
+                </td>
+                <td>${task.start_time}</td>
+                <td>${task.estimated_end}</td>
+                <td>
+                    <span class="fw-bold ${getStatusClass(task.live_status)}">${task.time_left}</span>
+                </td>
+                <td>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar ${getProgressBarClass(task.live_status)} progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: ${task.progress_percentage}%"
+                             aria-valuenow="${task.progress_percentage}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            ${Math.round(task.progress_percentage)}%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge ${getStatusBadgeClass(task.live_status)}">${task.live_status}</span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-success" onclick="completeTask(${task.id})">
+                        <i class="fas fa-check"></i> Complete
+                    </button>
+                </td>
+            </tr>
+        `}).join('');
+        
+        console.log('✅ Tasks displayed in table');
+    }
+    
+    // Get status-based CSS classes
+    function getStatusClass(status) {
+        if (status.includes('🟢')) return 'status-on-track';
+        if (status.includes('🟡')) return 'status-at-risk';
+        if (status.includes('🔴')) return 'status-exceeded';
+        return '';
+    }
+    
+    function getStatusBadgeClass(status) {
+        if (status.includes('🟢')) return 'bg-success';
+        if (status.includes('🟡')) return 'bg-warning';
+        if (status.includes('🔴')) return 'bg-danger';
+        return 'bg-secondary';
+    }
+    
+    function getProgressBarClass(status) {
+        if (status.includes('🟢')) return 'bg-success';
+        if (status.includes('🟡')) return 'bg-warning';
+        if (status.includes('🔴')) return 'bg-danger';
+        return 'bg-info';
+    }
+    
+    // Complete task
+    async function completeTask(taskId) {
+        if (!confirm('Mark this task as completed?')) return;
+        
+        try {
+            const response = await fetch('/api/task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    operation: 'complete',
+                    task_id: taskId
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('✅ Task completed successfully!', 'success');
+                loadLiveTasks(); // Refresh the table
+            } else {
+                showAlert(`❌ Failed to complete task: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            showAlert(`❌ Network error: ${error.message}`, 'danger');
+        }
+    }
+    
+    // Update live indicator
+    function updateLiveIndicator(isLive) {
+        if (isLive) {
+            liveIndicator.innerHTML = '<i class="fas fa-circle pulse-dot me-1"></i>Live Updates';
+            liveIndicator.className = 'badge bg-success';
+        } else {
+            liveIndicator.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Connection Issue';
+            liveIndicator.className = 'badge bg-warning';
+        }
+    }
+    
+    // Show alert
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.getElementById('resultAlert').appendChild(alertDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+    
+    // Refresh button
+    refreshBtn.addEventListener('click', loadLiveTasks);
+    
+    // Test alert button
+    document.getElementById('testAlertBtn').addEventListener('click', async function() {
+        try {
+            const response = await fetch('/api/task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    operation: 'test_alert',
+                    task_name: 'Web Interface Test'
+                })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showAlert('🔔 Test alert sent! Check your WhatsApp.', 'info');
+            } else {
+                showAlert('❌ Test alert failed', 'danger');
+            }
+        } catch (error) {
+            showAlert('❌ Network error', 'danger');
+        }
+    });
+    
+    // Check alerts button
+    document.getElementById('checkAlertsBtn').addEventListener('click', async function() {
+        try {
+            const response = await fetch('/api/task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ operation: 'check_alerts' })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showAlert('✅ Alert check completed', 'success');
+            } else {
+                showAlert('❌ Alert check failed', 'danger');
+            }
+        } catch (error) {
+            showAlert('❌ Network error', 'danger');
+        }
+    });
+    
+    // Start live updates
+    function startLiveUpdates() {
+        loadLiveTasks(); // Initial load
+        refreshInterval = setInterval(loadLiveTasks, 30000); // Update every 30 seconds
+    }
+    
+    // Stop live updates
+    function stopLiveUpdates() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    }
+    
+    // Page visibility handling
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopLiveUpdates();
+        } else {
+            startLiveUpdates();
+        }
+    });
+    
+    // Initialize
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000); // Update every second
+    startLiveUpdates();
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', stopLiveUpdates);
+</script>
+{% endblock %}

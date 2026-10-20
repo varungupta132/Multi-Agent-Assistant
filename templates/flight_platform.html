@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block title %}Flight Booking Platform - Demo{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center py-4">
+                    <h1 class="display-4 mb-2">✈️ SkyBook Airlines</h1>
+                    <p class="lead mb-0">Your Trusted Flight Booking Platform</p>
+                    <small class="text-white-50">Powered by AI Multi-Agent System</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6 text-primary mb-2">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                    <h5 class="card-title">Total Flights</h5>
+                    <h3 class="text-primary" id="totalFlights">-</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6 text-success mb-2">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <h5 class="card-title">Total Bookings</h5>
+                    <h3 class="text-success" id="totalBookings">-</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6 text-warning mb-2">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5 class="card-title">Passengers</h5>
+                    <h3 class="text-warning" id="totalPassengers">-</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6 text-info mb-2">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <h5 class="card-title">Revenue</h5>
+                    <h3 class="text-info" id="totalRevenue">-</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="platformTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings" type="button" role="tab">
+                        <i class="fas fa-list me-2"></i>All Bookings
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="flights-tab" data-bs-toggle="tab" data-bs-target="#flights" type="button" role="tab">
+                        <i class="fas fa-plane me-2"></i>Available Flights
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="platformTabContent">
+        <!-- Bookings Tab -->
+        <div class="tab-pane fade show active" id="bookings" role="tabpanel">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>Flight Bookings</h5>
+                    <button class="btn btn-primary btn-sm" onclick="refreshBookings()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Passenger</th>
+                                    <th>Route</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Seats</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Booked On</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsTable">
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading bookings...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flights Tab -->
+        <div class="tab-pane fade" id="flights" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-plane me-2"></i>Available Flights</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <select class="form-select" id="routeFilter">
+                                <option value="">All Routes</option>
+                                <option value="Delhi → Mumbai">Delhi → Mumbai</option>
+                                <option value="Mumbai → Delhi">Mumbai → Delhi</option>
+                                <option value="Delhi → Bangalore">Delhi → Bangalore</option>
+                                <option value="Bangalore → Delhi">Bangalore → Delhi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="date" class="form-control" id="dateFilter">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary" onclick="filterFlights()">
+                                <i class="fas fa-filter me-1"></i>Filter
+                            </button>
+                        </div>
+                    </div>
+                    <div id="flightsGrid">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-spinner fa-spin me-2"></i>Loading flights...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="tab-pane fade" id="analytics" role="tabpanel">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Popular Routes</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="routesChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Booking Trends</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="trendsChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let routesChart, trendsChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today
+    document.getElementById('dateFilter').value = new Date().toISOString().split('T')[0];
+    
+    // Load initial data
+    loadDashboardData();
+    loadBookings();
+    
+    // Initialize charts
+    initializeCharts();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(loadDashboardData, 30000);
+});
+
+function loadDashboardData() {
+    // Load stats
+    fetch('/api/flight/stats')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('totalFlights').textContent = data.stats.total_flights || 0;
+            document.getElementById('totalBookings').textContent = data.stats.total_bookings || 0;
+            document.getElementById('totalPassengers').textContent = data.stats.total_passengers || 0;
+            document.getElementById('totalRevenue').textContent = '₹' + (data.stats.total_revenue || 0).toLocaleString();
+        }
+    })
+    .catch(error => console.error('Error loading stats:', error));
+}
+
+function loadBookings() {
+    const tableBody = document.getElementById('bookingsTable');
+    tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading bookings...</td></tr>';
+    
+    fetch('/api/flight/history')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.bookings) {
+            displayBookings(data.bookings);
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No bookings found</td></tr>';
+        }
+    })
+    .catch(error => {
+        console.error('Error loading bookings:', error);
+        tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error loading bookings</td></tr>';
+    });
+}
+
+function displayBookings(bookings) {
+    const tableBody = document.getElementById('bookingsTable');
+    
+    if (!bookings || bookings.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No bookings found</td></tr>';
+        return;
+    }
+    
+    const rows = bookings.map(booking => {
+        const statusBadge = booking.status === 'confirmed' ? 
+            '<span class="badge bg-success">Confirmed</span>' : 
+            '<span class="badge bg-warning">Pending</span>';
+        
+        const bookingDate = new Date(booking.booking_time).toLocaleDateString();
+        const bookingTime = new Date(booking.booking_time).toLocaleTimeString();
+        
+        return `
+            <tr>
+                <td><strong>${booking.booking_id}</strong></td>
+                <td>${booking.passenger_name}</td>
+                <td><i class="fas fa-plane me-1"></i>${booking.from_city} → ${booking.to_city}</td>
+                <td>${booking.travel_date}</td>
+                <td>${booking.departure_time}</td>
+                <td><i class="fas fa-user me-1"></i>${booking.seats_booked}</td>
+                <td><strong>₹${booking.total_price.toLocaleString()}</strong></td>
+                <td>${statusBadge}</td>
+                <td><small>${bookingDate}<br>${bookingTime}</small></td>
+            </tr>
+        `;
+    }).join('');
+    
+    tableBody.innerHTML = rows;
+}
+
+function refreshBookings() {
+    loadBookings();
+    loadDashboardData();
+}
+
+function filterFlights() {
+    const route = document.getElementById('routeFilter').value;
+    const date = document.getElementById('dateFilter').value;
+    
+    const flightsGrid = document.getElementById('flightsGrid');
+    flightsGrid.innerHTML = '<div class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading flights...</div>';
+    
+    const params = new URLSearchParams();
+    if (route) params.append('route', route);
+    if (date) params.append('date', date);
+    
+    fetch(`/api/flight/available?${params}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.flights) {
+            displayFlights(data.flights);
+        } else {
+            flightsGrid.innerHTML = '<div class="text-center text-muted">No flights found</div>';
+        }
+    })
+    .catch(error => {
+        console.error('Error loading flights:', error);
+        flightsGrid.innerHTML = '<div class="text-center text-danger">Error loading flights</div>';
+    });
+}
+
+function displayFlights(flights) {
+    const flightsGrid = document.getElementById('flightsGrid');
+    
+    if (!flights || flights.length === 0) {
+        flightsGrid.innerHTML = '<div class="text-center text-muted">No flights found</div>';
+        return;
+    }
+    
+    const flightCards = flights.map(flight => `
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">${flight.airline} ${flight.flight_no}</h6>
+                        <span class="badge bg-primary">${flight.aircraft}</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>${flight.from_city} → ${flight.to_city}</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>${flight.departure_date}
+                        </small>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>${flight.departure_time} - ${flight.arrival_time}
+                        </small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-success">
+                            <i class="fas fa-chair me-1"></i>${flight.available_seats} seats
+                        </span>
+                        <strong class="text-primary">₹${flight.price.toLocaleString()}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    flightsGrid.innerHTML = `<div class="row">${flightCards}</div>`;
+}
+
+function initializeCharts() {
+    // Routes Chart
+    const routesCtx = document.getElementById('routesChart').getContext('2d');
+    routesChart = new Chart(routesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Delhi → Mumbai', 'Mumbai → Delhi', 'Delhi → Bangalore', 'Others'],
+            datasets: [{
+                data: [30, 25, 20, 25],
+                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+    
+    // Trends Chart
+    const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+    trendsChart = new Chart(trendsCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Bookings',
+                data: [12, 19, 15, 25, 22, 30],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Tab switching
+document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+    tab.addEventListener('shown.bs.tab', function (event) {
+        const target = event.target.getAttribute('data-bs-target');
+        
+        if (target === '#flights') {
+            filterFlights();
+        } else if (target === '#analytics') {
+            // Refresh charts
+            if (routesChart) routesChart.update();
+            if (trendsChart) trendsChart.update();
+        }
+    });
+});
+</script>
+{% endblock %}

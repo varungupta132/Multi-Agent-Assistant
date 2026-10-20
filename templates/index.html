@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Multi-Agent AI Framework - Dashboard{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="hero-title fade-in">🤖 Multi-Agent AI Framework</h1>
+                <p class="hero-subtitle fade-in">Intelligent communication powered by AI. Send WhatsApp messages, emails, and make calls with natural language processing.</p>
+                <div class="fade-in">
+                    <a href="#features" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-rocket me-2"></i>Get Started
+                    </a>
+                    <a href="https://github.com/your-repo" class="btn btn-outline-light btn-lg">
+                        <i class="fab fa-github me-2"></i>View Code
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="display-4 fw-bold text-white mb-3">🚀 Powerful AI Agents</h2>
+                <p class="lead text-white-50">Choose your communication method and let AI handle the rest</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- WhatsApp Agent -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 text-center fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon whatsapp-icon pulse">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <h4 class="card-title fw-bold mb-3">WhatsApp Agent</h4>
+                        <p class="card-text text-muted mb-4">Send intelligent WhatsApp messages with natural language. AI generates contextual, conversational messages that feel personal.</p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Natural conversation style</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Context-aware messaging</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Emoji integration</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Twilio integration</li>
+                        </ul>
+                        <a href="{{ url_for('whatsapp_page') }}" class="btn btn-success w-100">
+                            <i class="fab fa-whatsapp me-2"></i>Try WhatsApp Agent
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Email Agent -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 text-center fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon email-icon pulse">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h4 class="card-title fw-bold mb-3">Email Agent</h4>
+                        <p class="card-text text-muted mb-4">Generate professional emails with proper formatting. AI creates subject lines and body content based on your context.</p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Professional formatting</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Smart subject generation</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Context understanding</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>SMTP integration</li>
+                        </ul>
+                        <a href="{{ url_for('email_page') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-envelope me-2"></i>Try Email Agent
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call Agent -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 text-center fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon call-icon pulse">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h4 class="card-title fw-bold mb-3">Voice Call Agent</h4>
+                        <p class="card-text text-muted mb-4">Make intelligent voice calls with AI-generated speech. Perfect for appointments, reminders, and notifications.</p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Text-to-speech conversion</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Natural voice messages</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Context-aware content</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Twilio voice integration</li>
+                        </ul>
+                        <a href="{{ url_for('call_page') }}" class="btn btn-warning w-100">
+                            <i class="fas fa-phone me-2"></i>Try Call Agent
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task Manager Agent -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 text-center fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h4 class="card-title fw-bold mb-3">Task Manager</h4>
+                        <p class="card-text text-muted mb-4">AI-powered task management with live time tracking, smart duration estimation, and automated alerts.</p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>AI time estimation</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Live progress tracking</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Smart WhatsApp alerts</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Real-time dashboard</li>
+                        </ul>
+                        <a href="{{ url_for('task_page') }}" class="btn btn-success w-100">
+                            <i class="fas fa-tasks me-2"></i>Manage Tasks
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Flight Booking Agent -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 text-center fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <h4 class="card-title fw-bold mb-3">Flight Booking</h4>
+                        <p class="card-text text-muted mb-4">Autonomous flight booking with AI. Book flights using natural language - AI handles search, selection, and booking automatically.</p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Natural language booking</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>AI flight selection</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Autonomous booking flow</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Dummy platform demo</li>
+                        </ul>
+                        <a href="{{ url_for('flight_page') }}" class="btn btn-info w-100">
+                            <i class="fas fa-plane me-2"></i>Book Flights
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Music Agent -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 text-center fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #e83e8c 0%, #fd7e14 100%);">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <h4 class="card-title fw-bold mb-3">Mood Music</h4>
+                        <p class="card-text text-muted mb-4">AI-powered mood detection and music recommendation. Tell the AI how you feel and get personalized playlists instantly.</p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Emotion detection from text</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Mood-based playlists</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Automatic music selection</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Multi-agent architecture</li>
+                        </ul>
+                        <a href="{{ url_for('music_page') }}" class="btn btn-danger w-100">
+                            <i class="fas fa-music me-2"></i>Play Music
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MCQ Intelligence Platform -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 text-center fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h4 class="card-title fw-bold mb-3">MCQ Intelligence</h4>
+                        <p class="card-text text-muted mb-4">Autonomous AI Assessment Platform. Generate MCQs, scan external platforms, analyze questions, and create intelligent exams.</p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>AI question generation</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Platform scanning agent</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Intelligent analysis</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Adaptive learning</li>
+                        </ul>
+                        <a href="{{ url_for('mcq_page') }}" class="btn btn-purple w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white;">
+                            <i class="fas fa-brain me-2"></i>MCQ Platform
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="display-4 fw-bold text-white mb-3">⚡ How It Works</h2>
+                <p class="lead text-white-50">Simple 3-step process powered by advanced AI</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 text-center">
+                <div class="card fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);">
+                            <span class="fw-bold">1</span>
+                        </div>
+                        <h4 class="fw-bold mb-3">📝 Describe Your Intent</h4>
+                        <p class="text-muted">Simply describe what you want to communicate in natural language. No complex formatting needed.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 text-center">
+                <div class="card fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);">
+                            <span class="fw-bold">2</span>
+                        </div>
+                        <h4 class="fw-bold mb-3">🧠 AI Processes Context</h4>
+                        <p class="text-muted">Our Ollama-powered AI understands your context and generates appropriate, natural-sounding content.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 text-center">
+                <div class="card fade-in">
+                    <div class="card-body p-4">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #45b7d1 0%, #96c93d 100%);">
+                            <span class="fw-bold">3</span>
+                        </div>
+                        <h4 class="fw-bold mb-3">🚀 Message Delivered</h4>
+                        <p class="text-muted">Your message is automatically sent via WhatsApp, email, or voice call with perfect formatting.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Start Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card fade-in">
+                    <div class="card-body p-5 text-center">
+                        <h3 class="fw-bold mb-4">🎯 Ready to Get Started?</h3>
+                        <p class="text-muted mb-4">Choose an agent and start communicating with AI-powered intelligence</p>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-2">
+                                <a href="{{ url_for('whatsapp_page') }}" class="btn btn-success w-100 btn-lg">
+                                    <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                                </a>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{{ url_for('email_page') }}" class="btn btn-primary w-100 btn-lg">
+                                    <i class="fas fa-envelope me-2"></i>Email
+                                </a>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{{ url_for('call_page') }}" class="btn btn-warning w-100 btn-lg">
+                                    <i class="fas fa-phone me-2"></i>Call
+                                </a>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{{ url_for('flight_page') }}" class="btn btn-info w-100 btn-lg">
+                                    <i class="fas fa-plane me-2"></i>Flights
+                                </a>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{{ url_for('music_page') }}" class="btn btn-danger w-100 btn-lg">
+                                    <i class="fas fa-music me-2"></i>Music
+                                </a>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{{ url_for('task_page') }}" class="btn btn-success w-100 btn-lg">
+                                    <i class="fas fa-tasks me-2"></i>Tasks
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-4 text-center text-white-50">
+    <div class="container">
+        <p>&copy; 2024 Multi-Agent AI Framework. Powered by Ollama & Twilio.</p>
+    </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // Add animation on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'all 0.6s ease';
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

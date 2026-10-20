@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Call Agent - Multi-Agent AI Framework{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5 fade-in">
+                <div class="feature-icon mx-auto mb-3 pulse" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 100px; height: 100px;">
+                    <i class="fas fa-phone" style="font-size: 2.5rem;"></i>
+                </div>
+                <h1 class="hero-title mb-3">📞 Voice Call Agent</h1>
+                <p class="hero-subtitle">Make intelligent voice calls with AI-generated speech content</p>
+            </div>
+            
+            <!-- Main Card -->
+            <div class="card fade-in">
+                <div class="card-body p-5">
+                    <form id="callForm">
+                        <!-- Recipient -->
+                        <div class="mb-4">
+                            <label for="recipient" class="form-label fw-semibold">
+                                <i class="fas fa-phone me-2 text-warning"></i>Recipient Phone Number
+                            </label>
+                            <input type="text" class="form-control" id="recipient" 
+                                   placeholder="+917318018232 (leave empty for default)" 
+                                   value="">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Include country code (e.g., +91 for India). Leave empty to use default recipient.
+                            </div>
+                        </div>
+                        
+                        <!-- Call Context -->
+                        <div class="mb-4">
+                            <label for="callContext" class="form-label fw-semibold">
+                                <i class="fas fa-microphone me-2 text-warning"></i>What do you want to say in the call?
+                            </label>
+                            <textarea class="form-control" id="callContext" rows="4" 
+                                      placeholder="Describe what you want to communicate... For example:
+• Call mom saying I'm stuck in traffic and will be late
+• Call doctor to reschedule appointment for next week
+• Call office to inform about sick leave today
+• Call friend about party plans for tonight"></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-magic me-1"></i>
+                                AI will generate natural speech content and make the call using text-to-speech.
+                            </div>
+                        </div>
+                        
+                        <!-- Preview Button -->
+                        <div class="mb-4">
+                            <button type="button" class="btn btn-outline-warning" id="previewBtn">
+                                <i class="fas fa-eye me-2"></i>Preview AI Generated Voice Message
+                                <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
+                            </button>
+                        </div>
+                        
+                        <!-- Voice Message Preview -->
+                        <div id="voicePreview" class="message-preview">
+                            <i class="fas fa-robot me-2"></i>AI generated voice message will appear here...
+                        </div>
+                        
+                        <!-- Send Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg" id="sendBtn">
+                                <i class="fas fa-phone-alt me-2"></i>Make Voice Call
+                                <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Result Alert -->
+                    <div id="resultAlert" class="mt-4" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- Info Card -->
+            <div class="card mt-4 fade-in">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">
+                        <i class="fas fa-info-circle me-2 text-info"></i>How Voice Calls Work
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="feature-icon me-3" style="width: 50px; height: 50px; font-size: 1.2rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div>
+                                    <strong>AI Content Generation</strong><br>
+                                    <small class="text-muted">Ollama AI generates natural, conversational voice content based on your context.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="feature-icon me-3" style="width: 50px; height: 50px; font-size: 1.2rem; background: linear-gradient(135deg, #4285f4 0%, #1a73e8 100%);">
+                                    <i class="fas fa-volume-up"></i>
+                                </div>
+                                <div>
+                                    <strong>Text-to-Speech</strong><br>
+                                    <small class="text-muted">Twilio converts the AI-generated text into natural-sounding speech using Alice voice.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="feature-icon me-3" style="width: 50px; height: 50px; font-size: 1.2rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                    <i class="fas fa-phone-volume"></i>
+                                </div>
+                                <div>
+                                    <strong>Automated Calling</strong><br>
+                                    <small class="text-muted">The system automatically dials the number and plays the generated voice message.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="feature-icon me-3" style="width: 50px; height: 50px; font-size: 1.2rem; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div>
+                                    <strong>Call Tracking</strong><br>
+                                    <small class="text-muted">Get call status and SID for tracking and monitoring call delivery.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Examples Card -->
+            <div class="card mt-4 fade-in">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>Example Call Contexts
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b;">
+                                <strong>Running Late:</strong><br>
+                                <small class="text-muted">"Call mom saying I'm stuck in traffic and will be late"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b;">
+                                <strong>Appointment:</strong><br>
+                                <small class="text-muted">"Call doctor to reschedule appointment for next week"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b;">
+                                <strong>Sick Leave:</strong><br>
+                                <small class="text-muted">"Call office to inform about sick leave today"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b;">
+                                <strong>Social Plans:</strong><br>
+                                <small class="text-muted">"Call friend about party plans for tonight"</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Back Button -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const form = document.getElementById('callForm');
+    const previewBtn = document.getElementById('previewBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const voicePreview = document.getElementById('voicePreview');
+    const resultAlert = document.getElementById('resultAlert');
+    const callContext = document.getElementById('callContext');
+    
+    // Preview voice message
+    previewBtn.addEventListener('click', async function() {
+        const context = callContext.value.trim();
+        
+        if (!context) {
+            showAlert('Please enter a call context first.', 'danger');
+            return;
+        }
+        
+        // Show loading
+        previewBtn.querySelector('.loading').classList.add('show');
+        previewBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: context,
+                    type: 'call'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                voicePreview.innerHTML = `<i class="fas fa-microphone me-2 text-warning"></i><strong>Voice Message:</strong><br><em>"${data.generated}"</em>`;
+                voicePreview.classList.add('has-content');
+            } else {
+                showAlert(`Preview failed: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            showAlert(`Preview error: ${error.message}`, 'danger');
+        } finally {
+            // Hide loading
+            previewBtn.querySelector('.loading').classList.remove('show');
+            previewBtn.disabled = false;
+        }
+    });
+    
+    // Make call
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const recipient = document.getElementById('recipient').value.trim();
+        const context = callContext.value.trim();
+        
+        if (!context) {
+            showAlert('Please enter a call context.', 'danger');
+            return;
+        }
+        
+        // Show loading
+        sendBtn.querySelector('.loading').classList.add('show');
+        sendBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/call', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    to: recipient,
+                    message: context
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert(`
+                    <strong>✅ Voice call initiated successfully!</strong><br>
+                    <small>
+                        <strong>To:</strong> ${data.to}<br>
+                        <strong>Result:</strong> ${data.result}
+                    </small>
+                `, 'success');
+                
+                // Clear form
+                form.reset();
+                voicePreview.innerHTML = '<i class="fas fa-robot me-2"></i>AI generated voice message will appear here...';
+                voicePreview.classList.remove('has-content');
+            } else {
+                showAlert(`❌ Failed to make call: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            showAlert(`❌ Network error: ${error.message}`, 'danger');
+        } finally {
+            // Hide loading
+            sendBtn.querySelector('.loading').classList.remove('show');
+            sendBtn.disabled = false;
+        }
+    });
+    
+    function showAlert(message, type) {
+        resultAlert.innerHTML = `<div class="alert alert-${type}" role="alert">${message}</div>`;
+        resultAlert.style.display = 'block';
+        
+        // Auto hide after 10 seconds for success messages
+        if (type === 'success') {
+            setTimeout(() => {
+                resultAlert.style.display = 'none';
+            }, 10000);
+        }
+        
+        // Scroll to alert
+        resultAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    // Example click handlers
+    document.querySelectorAll('.example-item').forEach(item => {
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', function() {
+            const exampleText = this.querySelector('small').textContent.replace(/"/g, '');
+            callContext.value = exampleText;
+            callContext.focus();
+        });
+    });
+</script>
+{% endblock %}

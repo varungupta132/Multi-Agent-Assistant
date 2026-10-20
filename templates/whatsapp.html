@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}WhatsApp Agent - Multi-Agent AI Framework{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5 fade-in">
+                <div class="feature-icon mx-auto mb-3 pulse" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); width: 100px; height: 100px;">
+                    <i class="fab fa-whatsapp" style="font-size: 2.5rem;"></i>
+                </div>
+                <h1 class="hero-title mb-3">📱 WhatsApp Agent</h1>
+                <p class="hero-subtitle">Send intelligent WhatsApp messages with AI-powered natural language generation</p>
+            </div>
+            
+            <!-- Main Card -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h4 class="mb-0 text-white"><i class="fab fa-whatsapp me-2 text-success"></i>AI-Powered WhatsApp Messaging</h4>
+                </div>
+                <div class="card-body">
+                    <form id="whatsappForm">
+                        <!-- Recipient -->
+                        <div class="mb-4">
+                            <label for="recipient" class="form-label">
+                                <i class="fas fa-user me-2 text-success"></i>Recipient Phone Number
+                            </label>
+                            <input type="text" class="form-control" id="recipient" 
+                                   placeholder="+917318018232 (leave empty for default)" 
+                                   value="">
+                            <div class="form-text text-white-50">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Include country code (e.g., +91 for India). Leave empty to use default recipient.
+                            </div>
+                        </div>
+                        
+                        <!-- Message Context -->
+                        <div class="mb-4">
+                            <label for="messageContext" class="form-label">
+                                <i class="fas fa-comment-dots me-2 text-success"></i>What do you want to communicate?
+                            </label>
+                            <textarea class="form-control" id="messageContext" rows="4" 
+                                      placeholder="Describe what you want to say... For example:
+• I'm stuck in traffic and will be late for dinner
+• Meeting is postponed to tomorrow because of emergency  
+• Can't make it to the party tonight because I'm sick
+• Project completed successfully and ready for review"></textarea>
+                            <div class="form-text text-white-50">
+                                <i class="fas fa-magic me-1"></i>
+                                AI will generate a natural, conversational WhatsApp message based on your context.
+                            </div>
+                        </div>
+                        
+                        <!-- Preview Button -->
+                        <div class="mb-4">
+                            <button type="button" class="btn btn-outline-success" id="previewBtn">
+                                <i class="fas fa-eye me-2"></i>Preview AI Generated Message
+                            </button>
+                        </div>
+                        
+                        <!-- Message Preview -->
+                        <div id="messagePreview" class="card mb-4" style="background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3); display: none;">
+                            <div class="card-body">
+                                <h6 class="text-success mb-2"><i class="fas fa-robot me-2"></i>AI Generated Message:</h6>
+                                <div id="messagePreviewContent" class="text-white"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Send Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg" id="sendBtn">
+                                <i class="fab fa-whatsapp me-2"></i>Send WhatsApp Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Examples Card -->
+            <div class="card mt-4 fade-in">
+                <div class="card-header">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>Example Contexts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(37, 211, 102, 0.1); border-left: 4px solid #25d366; cursor: pointer; transition: all 0.3s ease;">
+                                <strong class="text-success">Traffic Delay:</strong><br>
+                                <small class="text-white-50">"I'm stuck in traffic and will be late for dinner"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(37, 211, 102, 0.1); border-left: 4px solid #25d366; cursor: pointer; transition: all 0.3s ease;">
+                                <strong class="text-success">Meeting Update:</strong><br>
+                                <small class="text-white-50">"Meeting is postponed to tomorrow because of emergency"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(37, 211, 102, 0.1); border-left: 4px solid #25d366; cursor: pointer; transition: all 0.3s ease;">
+                                <strong class="text-success">Can't Attend:</strong><br>
+                                <small class="text-white-50">"Can't make it to the party tonight because I'm sick"</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="example-item p-3 rounded" style="background: rgba(37, 211, 102, 0.1); border-left: 4px solid #25d366; cursor: pointer; transition: all 0.3s ease;">
+                                <strong class="text-success">Good News:</strong><br>
+                                <small class="text-white-50">"Project completed successfully and ready for review"</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Back Button -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Area -->
+<div id="resultsArea" class="container mt-4"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('whatsappForm');
+    const previewBtn = document.getElementById('previewBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const messagePreview = document.getElementById('messagePreview');
+    const messagePreviewContent = document.getElementById('messagePreviewContent');
+    const messageContext = document.getElementById('messageContext');
+    
+    // Preview message
+    previewBtn.addEventListener('click', async function() {
+        const context = messageContext.value.trim();
+        
+        if (!context) {
+            showResult('Please enter a message context first.', 'warning');
+            return;
+        }
+        
+        // Show loading
+        const originalText = previewBtn.innerHTML;
+        previewBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+        previewBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: context,
+                    type: 'whatsapp'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                messagePreviewContent.innerHTML = `<i class="fab fa-whatsapp me-2 text-success"></i>${data.generated}`;
+                messagePreview.style.display = 'block';
+            } else {
+                showResult(`Preview failed: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            showResult(`Preview error: ${error.message}`, 'danger');
+        } finally {
+            previewBtn.innerHTML = originalText;
+            previewBtn.disabled = false;
+        }
+    });
+    
+    // Send message
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const recipient = document.getElementById('recipient').value.trim();
+        const context = messageContext.value.trim();
+        
+        if (!context) {
+            showResult('Please enter a message context.', 'warning');
+            return;
+        }
+        
+        // Show loading
+        const originalText = sendBtn.innerHTML;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        sendBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/whatsapp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    to: recipient,
+                    message: context
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showResult(`
+                    <strong>✅ WhatsApp sent successfully!</strong><br>
+                    <strong>To:</strong> ${data.to}<br>
+                    <strong>Message:</strong> ${data.message}<br>
+                    <strong>SID:</strong> ${data.sid}
+                `, 'success');
+                
+                // Clear form
+                form.reset();
+                messagePreview.style.display = 'none';
+            } else {
+                showResult(`❌ Failed to send WhatsApp: ${data.error}`, 'danger');
+            }
+        } catch (error) {
+            showResult(`❌ Network error: ${error.message}`, 'danger');
+        } finally {
+            sendBtn.innerHTML = originalText;
+            sendBtn.disabled = false;
+        }
+    });
+    
+    // Example click handlers
+    document.querySelectorAll('.example-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const exampleText = this.querySelector('small').textContent.replace(/"/g, '');
+            messageContext.value = exampleText;
+            messageContext.focus();
+            
+            // Add hover effect
+            this.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+        
+        // Add hover effects
+        item.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(37, 211, 102, 0.2)';
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(37, 211, 102, 0.1)';
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+
+function showResult(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                     type === 'danger' ? 'alert-danger' : 
+                     type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const resultsArea = document.getElementById('resultsArea');
+    resultsArea.innerHTML = `
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="alert ${alertClass} mb-0">
+                            ${message}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Scroll to results
+    resultsArea.scrollIntoView({ behavior: 'smooth' });
+    
+    // Auto hide success messages
+    if (type === 'success') {
+        setTimeout(() => {
+            resultsArea.innerHTML = '';
+        }, 10000);
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,988 @@
+{% extends "base.html" %}
+
+{% block title %}🎵 AI Music Player - Mood-Based Streaming{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="text-center mb-4 fade-in">
+                <div class="music-header-icon mx-auto mb-3">
+                    <i class="fas fa-headphones-alt"></i>
+                </div>
+                <h1 class="music-title mb-2">🎵 AI Music Player</h1>
+                <p class="music-subtitle">Tell me your mood and I'll create the perfect playlist just for you!</p>
+            </div>
+
+            <!-- Main Music Interface -->
+            <div class="row g-4">
+                <!-- Left Panel - Mood Input & Controls -->
+                <div class="col-lg-4">
+                    <div class="music-panel">
+                        <h4 class="panel-title">
+                            <i class="fas fa-heart me-2"></i>How are you feeling?
+                        </h4>
+                        
+                        <!-- Mood Input -->
+                        <div class="mood-input-section">
+                            <textarea class="mood-textarea" id="moodInput" 
+                                placeholder="Tell me your mood... 
+Examples:
+• I'm super happy today!
+• Feeling stressed, need to relax
+• Going to the gym, pump me up!
+• Romantic dinner tonight
+• Sad and need comfort music"></textarea>
+                            
+                            <button class="create-playlist-btn" id="createPlaylistBtn">
+                                <i class="fas fa-magic me-2"></i>Create My Playlist
+                            </button>
+                        </div>
+
+                        <!-- Quick Mood Buttons -->
+                        <div class="quick-moods">
+                            <h6 class="quick-moods-title">Quick Moods</h6>
+                            <div class="mood-buttons">
+                                <button class="mood-btn happy" data-mood="I'm feeling super happy and energetic today!">
+                                    😊 Happy
+                                </button>
+                                <button class="mood-btn sad" data-mood="I'm feeling sad and need some comfort music">
+                                    😢 Sad
+                                </button>
+                                <button class="mood-btn relaxed" data-mood="I want to relax and unwind with calm music">
+                                    😌 Chill
+                                </button>
+                                <button class="mood-btn motivated" data-mood="I'm going to workout and need pumping music">
+                                    💪 Workout
+                                </button>
+                                <button class="mood-btn romantic" data-mood="Having a romantic evening, want love songs">
+                                    💕 Romance
+                                </button>
+                                <button class="mood-btn angry" data-mood="I'm feeling angry and need intense music">
+                                    😠 Intense
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Panel - Music Player -->
+                <div class="col-lg-8">
+                    <div class="music-player-panel">
+                        <!-- Current Song Display -->
+                        <div class="current-song-display" id="currentSongDisplay">
+                            <div class="no-music-state">
+                                <i class="fas fa-music music-icon"></i>
+                                <h3>Ready to Play Music</h3>
+                                <p>Tell me your mood to start your personalized playlist!</p>
+                            </div>
+                        </div>
+
+                        <!-- Player Controls -->
+                        <div class="player-controls" id="playerControls" style="display: none;">
+                            <div class="progress-section">
+                                <div class="time-display">
+                                    <span id="currentTime">0:00</span>
+                                    <span id="totalTime">0:00</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" id="progressBar">
+                                        <div class="progress-fill" id="progressFill"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="control-buttons">
+                                <button class="control-btn" onclick="previousSong()">
+                                    <i class="fas fa-step-backward"></i>
+                                </button>
+                                <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlayPause()">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="control-btn" onclick="nextSong()">
+                                    <i class="fas fa-step-forward"></i>
+                                </button>
+                                <button class="control-btn" onclick="toggleShuffle()" id="shuffleBtn">
+                                    <i class="fas fa-random"></i>
+                                </button>
+                                <button class="control-btn" onclick="toggleRepeat()" id="repeatBtn">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+
+                            <div class="volume-section">
+                                <i class="fas fa-volume-down"></i>
+                                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="75">
+                                <i class="fas fa-volume-up"></i>
+                                <span class="volume-display" id="volumeDisplay">75%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Panel - Playlist -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="playlist-panel" id="playlistPanel" style="display: none;">
+                        <h4 class="panel-title">
+                            <i class="fas fa-list-music me-2"></i>Your Playlist
+                        </h4>
+                        <div class="playlist-container" id="playlistContainer">
+                            <!-- Playlist will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global variables
+let currentPlaylist = null;
+let currentSongIndex = 0;
+let isPlaying = false;
+let isPaused = false;
+let currentTime = 0;
+let duration = 0;
+let volume = 75;
+let isShuffled = false;
+let repeatMode = 'off'; // off, one, all
+
+// Initialize the music player
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMusicPlayer();
+});
+
+function initializeMusicPlayer() {
+    // Mood input form
+    document.getElementById('createPlaylistBtn').addEventListener('click', createPlaylist);
+    
+    // Quick mood buttons
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const mood = this.getAttribute('data-mood');
+            document.getElementById('moodInput').value = mood;
+            
+            // Visual feedback
+            this.classList.add('active');
+            setTimeout(() => this.classList.remove('active'), 300);
+            
+            // Auto-create playlist
+            setTimeout(() => createPlaylist(), 500);
+        });
+    });
+    
+    // Volume control
+    document.getElementById('volumeSlider').addEventListener('input', function() {
+        volume = this.value;
+        document.getElementById('volumeDisplay').textContent = volume + '%';
+        updateVolume();
+    });
+    
+    // Progress bar simulation
+    setInterval(updateProgress, 1000);
+}
+
+function createPlaylist() {
+    const moodInput = document.getElementById('moodInput').value.trim();
+    
+    if (!moodInput) {
+        showNotification('Please tell me how you\'re feeling!', 'warning');
+        return;
+    }
+    
+    const btn = document.getElementById('createPlaylistBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Your Playlist...';
+    btn.disabled = true;
+    
+    fetch('/api/music/play', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            mood_input: moodInput
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            parsePlaylistData(data.result);
+            showNotification('🎵 Your playlist is ready!', 'success');
+            document.getElementById('moodInput').value = '';
+        } else {
+            showNotification('Failed to create playlist: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Something went wrong. Please try again!', 'danger');
+    })
+    .finally(() => {
+        btn.innerHTML = '<i class="fas fa-magic me-2"></i>Create My Playlist';
+        btn.disabled = false;
+    });
+}
+
+function parsePlaylistData(result) {
+    // Extract playlist information from the result
+    const lines = result.split('\n');
+    let playlistName = 'Your Playlist';
+    let songs = [];
+    
+    // Parse playlist name
+    const playlistMatch = result.match(/📀 Playlist: (.+)/);
+    if (playlistMatch) {
+        playlistName = playlistMatch[1];
+    }
+    
+    // Parse tracklist
+    const tracklistStart = result.indexOf('🎼 TRACKLIST:');
+    if (tracklistStart !== -1) {
+        const tracklistSection = result.substring(tracklistStart);
+        const trackLines = tracklistSection.split('\n').slice(1);
+        
+        for (let line of trackLines) {
+            const match = line.match(/(\d+)\.\s*(.+?)\s*-\s*(.+?)\s*\((.+?)\)/);
+            if (match) {
+                songs.push({
+                    id: match[1],
+                    title: match[2].trim(),
+                    artist: match[3].trim(),
+                    genre: match[4].trim(),
+                    duration: Math.floor(Math.random() * 180) + 120 // Random duration 2-5 minutes
+                });
+            }
+        }
+    }
+    
+    // Set current playlist
+    currentPlaylist = {
+        name: playlistName,
+        songs: songs
+    };
+    
+    currentSongIndex = 0;
+    
+    // Update UI
+    displayCurrentSong();
+    displayPlaylist();
+    showPlayerControls();
+    
+    // Auto-start playing
+    startPlaying();
+}
+
+function displayCurrentSong() {
+    if (!currentPlaylist || currentPlaylist.songs.length === 0) return;
+    
+    const song = currentPlaylist.songs[currentSongIndex];
+    const display = document.getElementById('currentSongDisplay');
+    
+    display.innerHTML = `
+        <div class="current-song-info">
+            <div class="song-artwork">
+                <i class="fas fa-music"></i>
+            </div>
+            <div class="song-details">
+                <h3 class="song-title">${song.title}</h3>
+                <p class="song-artist">${song.artist}</p>
+                <p class="song-genre">${song.genre}</p>
+            </div>
+            <div class="playlist-info">
+                <p class="playlist-name">${currentPlaylist.name}</p>
+                <p class="track-number">Track ${currentSongIndex + 1} of ${currentPlaylist.songs.length}</p>
+            </div>
+        </div>
+    `;
+    
+    duration = song.duration;
+    document.getElementById('totalTime').textContent = formatTime(duration);
+}
+
+function displayPlaylist() {
+    if (!currentPlaylist) return;
+    
+    const container = document.getElementById('playlistContainer');
+    let html = '';
+    
+    currentPlaylist.songs.forEach((song, index) => {
+        const isActive = index === currentSongIndex;
+        html += `
+            <div class="playlist-item ${isActive ? 'active' : ''}" onclick="playSong(${index})">
+                <div class="track-number">${index + 1}</div>
+                <div class="track-info">
+                    <div class="track-title">${song.title}</div>
+                    <div class="track-artist">${song.artist}</div>
+                </div>
+                <div class="track-genre">${song.genre}</div>
+                <div class="track-duration">${formatTime(song.duration)}</div>
+                ${isActive ? '<i class="fas fa-volume-up playing-icon"></i>' : ''}
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    document.getElementById('playlistPanel').style.display = 'block';
+}
+
+function showPlayerControls() {
+    document.getElementById('playerControls').style.display = 'block';
+}
+
+function startPlaying() {
+    isPlaying = true;
+    isPaused = false;
+    currentTime = 0;
+    
+    updatePlayPauseButton();
+    showNotification(`🎵 Now playing: ${currentPlaylist.songs[currentSongIndex].title}`, 'info');
+}
+
+function togglePlayPause() {
+    if (isPlaying) {
+        pauseMusic();
+    } else {
+        resumeMusic();
+    }
+}
+
+function pauseMusic() {
+    isPlaying = false;
+    isPaused = true;
+    updatePlayPauseButton();
+    showNotification('⏸️ Music paused', 'info');
+}
+
+function resumeMusic() {
+    isPlaying = true;
+    isPaused = false;
+    updatePlayPauseButton();
+    showNotification('▶️ Music resumed', 'info');
+}
+
+function nextSong() {
+    if (!currentPlaylist) return;
+    
+    if (currentSongIndex < currentPlaylist.songs.length - 1) {
+        currentSongIndex++;
+    } else if (repeatMode === 'all') {
+        currentSongIndex = 0;
+    } else {
+        showNotification('End of playlist', 'info');
+        return;
+    }
+    
+    playSong(currentSongIndex);
+}
+
+function previousSong() {
+    if (!currentPlaylist) return;
+    
+    if (currentSongIndex > 0) {
+        currentSongIndex--;
+    } else if (repeatMode === 'all') {
+        currentSongIndex = currentPlaylist.songs.length - 1;
+    } else {
+        showNotification('Beginning of playlist', 'info');
+        return;
+    }
+    
+    playSong(currentSongIndex);
+}
+
+function playSong(index) {
+    if (!currentPlaylist || index < 0 || index >= currentPlaylist.songs.length) return;
+    
+    currentSongIndex = index;
+    currentTime = 0;
+    
+    displayCurrentSong();
+    displayPlaylist();
+    startPlaying();
+}
+
+function toggleShuffle() {
+    isShuffled = !isShuffled;
+    const btn = document.getElementById('shuffleBtn');
+    
+    if (isShuffled) {
+        btn.classList.add('active');
+        showNotification('🔀 Shuffle enabled', 'info');
+    } else {
+        btn.classList.remove('active');
+        showNotification('🔀 Shuffle disabled', 'info');
+    }
+}
+
+function toggleRepeat() {
+    const modes = ['off', 'one', 'all'];
+    const currentIndex = modes.indexOf(repeatMode);
+    repeatMode = modes[(currentIndex + 1) % modes.length];
+    
+    const btn = document.getElementById('repeatBtn');
+    const icons = {
+        'off': 'fas fa-redo',
+        'one': 'fas fa-redo-alt',
+        'all': 'fas fa-redo'
+    };
+    
+    btn.innerHTML = `<i class="${icons[repeatMode]}"></i>`;
+    
+    if (repeatMode !== 'off') {
+        btn.classList.add('active');
+    } else {
+        btn.classList.remove('active');
+    }
+    
+    showNotification(`🔁 Repeat: ${repeatMode.toUpperCase()}`, 'info');
+}
+
+function updateVolume() {
+    // Simulate volume change
+    showNotification(`🔊 Volume: ${volume}%`, 'info');
+}
+
+function updateProgress() {
+    if (!isPlaying || !currentPlaylist) return;
+    
+    currentTime++;
+    
+    if (currentTime >= duration) {
+        // Song ended
+        if (repeatMode === 'one') {
+            currentTime = 0;
+        } else {
+            nextSong();
+            return;
+        }
+    }
+    
+    // Update progress bar
+    const progress = (currentTime / duration) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('currentTime').textContent = formatTime(currentTime);
+}
+
+function updatePlayPauseButton() {
+    const btn = document.getElementById('playPauseBtn');
+    if (isPlaying) {
+        btn.innerHTML = '<i class="fas fa-pause"></i>';
+        btn.classList.add('playing');
+    } else {
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+        btn.classList.remove('playing');
+    }
+}
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Show notification
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Remove notification
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => document.body.removeChild(notification), 300);
+    }, 3000);
+}
+</script>
+
+{% block extra_css %}
+<style>
+/* Music Player Styles */
+.music-header-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.music-title {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+    font-size: 2.5rem;
+}
+
+.music-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+}
+
+.music-panel, .music-player-panel, .playlist-panel {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.panel-title {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.mood-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 1rem;
+    color: white;
+    font-size: 1rem;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.mood-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+.mood-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.create-playlist-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 15px;
+    padding: 1rem;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.create-playlist-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.create-playlist-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.quick-moods {
+    margin-top: 2rem;
+}
+
+.quick-moods-title {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.mood-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.mood-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 0.8rem;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.mood-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.mood-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transform: scale(0.95);
+}
+
+.mood-btn.happy { border-color: #ffd700; }
+.mood-btn.sad { border-color: #4a90e2; }
+.mood-btn.relaxed { border-color: #50c878; }
+.mood-btn.motivated { border-color: #ff6b6b; }
+.mood-btn.romantic { border-color: #ff69b4; }
+.mood-btn.angry { border-color: #ff4757; }
+
+/* Music Player */
+.current-song-display {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.no-music-state {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.no-music-state .music-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.current-song-info {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 2rem;
+}
+
+.song-artwork {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    animation: rotate 10s linear infinite;
+}
+
+.song-details {
+    flex: 1;
+}
+
+.song-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.song-artist {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.3rem;
+}
+
+.song-genre {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.playlist-info {
+    text-align: right;
+}
+
+.playlist-name {
+    font-size: 1.1rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.track-number {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Player Controls */
+.player-controls {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+}
+
+.progress-section {
+    margin-bottom: 1.5rem;
+}
+
+.time-display {
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.progress-bar-container {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.control-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+}
+
+.play-pause-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+}
+
+.play-pause-btn.playing {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.volume-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.volume-slider {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #667eea;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.volume-display {
+    min-width: 40px;
+    text-align: right;
+    font-size: 0.9rem;
+}
+
+/* Playlist */
+.playlist-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.playlist-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.playlist-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.playlist-item.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.5);
+}
+
+.playlist-item .track-number {
+    width: 40px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+}
+
+.playlist-item .track-info {
+    flex: 1;
+    margin-left: 1rem;
+}
+
+.playlist-item .track-title {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.playlist-item .track-artist {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.playlist-item .track-genre {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    margin-right: 1rem;
+}
+
+.playlist-item .track-duration {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    min-width: 50px;
+    text-align: right;
+}
+
+.playing-icon {
+    position: absolute;
+    right: 1rem;
+    color: #667eea;
+    animation: pulse 1.5s infinite;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-success {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.notification-info {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.notification-warning {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+.notification-danger {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mood-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .current-song-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .song-artwork {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+    }
+    
+    .playlist-info {
+        text-align: center;
+    }
+    
+    .control-buttons {
+        gap: 0.5rem;
+    }
+    
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
+    }
+    
+    .play-pause-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 1.3rem;
+    }
+}
+</style>
+{% endblock %}
+{% endblock %}
